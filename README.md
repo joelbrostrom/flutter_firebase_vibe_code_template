@@ -14,28 +14,91 @@ flutter run -d chrome
 
 ## Pre-installed Packages
 
-- `supabase_flutter` - Backend (database, auth, storage)
+- `firebase_core` - Firebase initialization
+- `firebase_auth` - Authentication (email/password, Google, etc.)
+- `cloud_firestore` - Cloud Firestore database
 - `http` - HTTP requests
 - `provider` - Simple state management
 - `google_fonts` - Custom fonts
 
-## Supabase Setup
+## Firebase Setup (Full Walkthrough)
 
-Credentials are in `lib/supabase_config.dart`. When forking for a new demo:
+### 1. Create a Firebase project
 
-1. Create a new project at [supabase.com](https://supabase.com)
-2. Update `supabaseUrl` and `supabaseAnonKey` in `lib/supabase_config.dart`
+1. Go to [console.firebase.google.com](https://console.firebase.google.com)
+2. Click **Add project**, give it a name, and follow the wizard
+3. Once created, you'll land on the project dashboard
 
-**Quick usage example:**
+### 2. Enable Authentication
+
+1. In the Firebase Console, go to **Security > Authentication**
+2. Click **Get started**
+3. Under **Sign-in method**, enable the providers you need (e.g. **Email/Password**)
+
+### 3. Enable Cloud Firestore (database)
+
+1. In the Firebase Console, go to **Build > Firestore Database**
+2. Click **Create database**
+3. Choose **Start in test mode** for prototyping (allows all reads/writes — tighten rules before going to production)
+4. Select a Cloud Firestore location and click **Enable**
+
+### 4. Install tools & configure the Flutter app
+
+```bash
+# Install the Firebase CLI (one-time, requires Node.js / npm)
+npm install -g firebase-tools
+
+# Log in to Firebase
+firebase login
+
+# Install the FlutterFire CLI (one-time)
+dart pub global activate flutterfire_cli
+
+# Configure Firebase for this Flutter project (generates lib/firebase_options.dart)
+flutterfire configure
+```
+
+Select your project when prompted. This generates `lib/firebase_options.dart` with
+all the keys and IDs the app needs — no manual copy-pasting required.
+
+### 5. Set up Firebase Hosting (static web)
+
+```bash
+# Initialise hosting in the project root
+firebase init hosting
+
+# When prompted:
+#   - Select your Firebase project
+#   - Set public directory to: build/web
+#   - Configure as single-page app: Yes
+#   - Do NOT overwrite index.html if asked
+
+# Build the Flutter web app
+flutter build web
+
+# Deploy to Firebase Hosting
+firebase deploy --only hosting
+```
+
+Your app will be live at `https://<your-project>.web.app`.
+
+### Quick usage example
 
 ```dart
-import 'supabase_config.dart';
+import 'firebase_config.dart';
 
-// Fetch data
-final data = await supabase.from('todos').select();
+// Fetch data from Firestore
+final snapshot = await db.collection('todos').get();
+final todos = snapshot.docs.map((d) => d.data()).toList();
 
 // Insert data
-await supabase.from('todos').insert({'title': 'New todo'});
+await db.collection('todos').add({'title': 'New todo'});
+
+// Auth - sign in
+await auth.signInWithEmailAndPassword(email: email, password: password);
+
+// Auth - current user
+final user = auth.currentUser;
 ```
 
 ## Tips for Vibe Coding
