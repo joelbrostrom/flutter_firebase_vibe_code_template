@@ -1,0 +1,165 @@
+---
+description: Flutter rules optimized for rapid prototyping and vibe coding demos
+globs:
+alwaysApply: true
+---
+# Vibe Coding Rules for Flutter
+
+**This is a proof of concept (POC) designed to be demonstrated to a live audience.**
+The app must be visually impressive and polished—first impressions matter. Prioritize
+a modern, fresh design with smooth animations that wow the audience.
+
+Prioritize speed of iteration over production-grade architecture. These rules are
+designed for quick prototyping and live demonstrations.
+
+## Project structure
+
+* Keep it simple: all code lives in `lib/` with a flat or shallow structure.
+* Single entry point: `lib/main.dart`.
+* Create feature folders only when a feature has multiple files (e.g.
+  `lib/chat/`, `lib/profile/`).
+* No monorepo packages unless explicitly requested.
+* Prefer fewer files over many small files.
+
+## State management
+
+* Use `setState` for simple local state.
+* Use `Provider` or `Riverpod` for shared state when needed.
+* Avoid complex patterns like BLoC unless explicitly requested.
+* Inline state logic is acceptable for demos.
+
+## Code style
+
+* Prioritize working code over perfect code.
+* Hardcoded values and magic numbers are fine for prototypes.
+* Inline styles are acceptable—no need to extract everything to theme.
+* Skip `const` constructors if they slow you down.
+* Use `print()` for quick debugging.
+
+## Backend (Supabase)
+
+* Supabase is pre-configured in `lib/supabase_config.dart`.
+* Import `supabase_config.dart` and use the `supabase` getter for quick access.
+* Use Supabase for database, auth, and storage needs.
+* Skip Row Level Security (RLS) for prototypes—enable it for production later.
+
+### State persistence
+
+* **Always persist app state to Supabase**—never rely on in-memory state alone.
+* Store user data, preferences, and app state in Supabase tables so state survives
+  app restarts.
+* Load state from Supabase on app startup; save changes immediately or on key
+  actions.
+
+### Database schema changes (Supabase CLI)
+
+* Use the Supabase CLI to manage and sync table changes.
+* After creating or modifying tables in the dashboard, pull changes locally:
+
+  ```bash
+  supabase db pull
+  ```
+
+* To create migrations from local changes:
+
+  ```bash
+  supabase migration new <migration_name>
+  ```
+
+* Push migrations to the remote project:
+
+  ```bash
+  supabase db push
+  ```
+
+* This keeps the database schema version-controlled and reproducible.
+
+### Example patterns
+
+```dart
+// Fetch all rows
+final data = await supabase.from('items').select();
+
+// Insert a row
+await supabase.from('items').insert({'name': 'New item'});
+
+// Update a row
+await supabase.from('items').update({'name': 'Updated'}).eq('id', itemId);
+
+// Real-time subscription
+supabase.from('items').stream(primaryKey: ['id']).listen((data) {
+  print('Updated: $data');
+});
+
+// Load state on startup
+Future<void> loadUserState() async {
+  final data = await supabase.from('user_state').select().single();
+  // Apply to app state
+}
+
+// Save state on change
+Future<void> saveUserState(Map<String, dynamic> state) async {
+  await supabase.from('user_state').upsert(state);
+}
+```
+
+## Dependencies
+
+* Add packages freely with `flutter pub add <package>`.
+* Use `any` version constraints for speed (avoid version hunting).
+* Common useful packages: `http`, `provider`, `google_fonts`, `url_launcher`,
+  `flutter_animate`, `shimmer`.
+
+## Testing
+
+* Skip tests unless explicitly requested.
+* Focus on making features work first.
+
+## Error handling
+
+* Basic try-catch is sufficient.
+* Show simple error messages to users.
+* Don't over-engineer error states for demos.
+
+## UI practices
+
+**The UI must impress a live audience.** Prioritize visual polish and "wow factor".
+
+### Design
+
+* Use Material 3 with a bold, modern color scheme.
+* Use `google_fonts` for clean, contemporary typography.
+* Add generous spacing, rounded corners, and subtle shadows for depth.
+* Use cards, gradients, and visual hierarchy to make the UI feel premium.
+* Ensure good contrast and readability—the audience may be viewing from a distance.
+
+### Animations
+
+* Add animations to make the app feel alive and responsive.
+* Use `AnimatedContainer`, `AnimatedOpacity`, `AnimatedSwitcher` for simple transitions.
+* Use `Hero` widgets for smooth navigation transitions.
+* Add loading states with `CircularProgressIndicator` or shimmer effects.
+* Subtle micro-interactions (button feedback, list item animations) go a long way.
+* Keep animations snappy (200-400ms)—don't slow down the demo.
+
+### Quick wins
+
+* Scaffold with AppBar is a good starting point—customize colors and add actions.
+* Copy-paste and adapt is faster than abstracting.
+* Use `ListView.builder` with animated item builds for dynamic lists.
+* Add splash screens or intro animations for extra polish.
+
+## What NOT to do
+
+* Don't set up multiple environment entry points.
+* Don't create abstract base classes for simple features.
+* Don't add code generation (freezed, json_serializable) unless needed.
+* Don't write tests proactively.
+* Don't refactor working code for "cleanliness".
+
+## AI assistant behavior
+
+* Implement features directly without asking for clarification on minor details.
+* Prefer complete working examples over partial snippets.
+* When in doubt, pick the simpler approach.
+* Iterate quickly based on feedback rather than planning extensively.
