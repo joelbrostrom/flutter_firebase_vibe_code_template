@@ -197,9 +197,65 @@ Future<void> saveUserState(String userId, Map<String, dynamic> state) async {
 * Don't write tests proactively.
 * Don't refactor working code for "cleanliness".
 
+## MCP servers (available tools)
+
+Two MCP servers are connected that the AI assistant should actively use.
+
+### Context7 — live documentation lookup
+
+The **Context7** MCP provides up-to-date documentation and code examples for
+virtually any package or library. **Use it whenever you are unsure about an API,
+need usage examples, or want to verify how a package works** — instead of
+guessing or relying on potentially outdated training data.
+
+Workflow (two-step):
+
+1. **Resolve the library ID** — call `resolve-library-id` with the package name
+   (e.g. `cloud_firestore`, `firebase_auth`, `provider`). This returns a
+   Context7-compatible library ID.
+2. **Query the docs** — call `query-docs` with the library ID and a specific
+   question (e.g. "How to listen to real-time updates in Cloud Firestore").
+
+Rules:
+* Always resolve the library ID first before querying docs.
+* Be specific in queries — "How to set up email/password auth with
+  firebase_auth" is much better than "auth".
+* Do not call either tool more than 3 times per question.
+
+### Dart MCP — Flutter dev tools
+
+The **Dart MCP** connects directly to Flutter/Dart development tools and running
+applications. **Prefer these tools over running equivalent shell commands.**
+
+Key tools:
+
+* `pub` — run pub commands (`add`, `get`, `remove`, `upgrade`, `deps`,
+  `outdated`). Use this instead of `flutter pub add` in the terminal.
+* `launch_app` — launch the Flutter app on a device. Call `list_devices` first
+  to pick a device.
+* `hot_reload` / `hot_restart` — apply code changes to a running app without
+  restarting from scratch.
+* `analyze_files` — run Dart analysis to find errors.
+* `dart_fix` — run `dart fix --apply` to auto-fix lint issues.
+* `dart_format` — format Dart files.
+* `get_widget_tree` — inspect the widget tree of a running app.
+* `get_runtime_errors` / `get_app_logs` — read errors and logs from a running
+  app.
+* `list_devices` — list available Flutter devices.
+
+Rules:
+* Always prefer the Dart MCP tools over shell commands for pub, analysis,
+  formatting, and app lifecycle operations.
+* Before using `hot_reload`, `hot_restart`, or `get_widget_tree`, call
+  `connect_dart_tooling_daemon` first.
+
 ## AI assistant behavior
 
 * Implement features directly without asking for clarification on minor details.
 * Prefer complete working examples over partial snippets.
 * When in doubt, pick the simpler approach.
 * Iterate quickly based on feedback rather than planning extensively.
+* **Use the Context7 MCP** to look up package documentation when unsure about
+  an API — don't guess.
+* **Use the Dart MCP** for pub commands, launching, hot reload, and analysis
+  instead of shell commands.
