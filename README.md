@@ -8,8 +8,11 @@ A Flutter web boilerplate optimized for rapid prototyping and vibe coding.
 # Install dependencies
 flutter pub get
 
-# Run on web (Chrome)
-flutter run -d chrome
+# Run on web (Chrome) with WASM — debug mode
+flutter run -d chrome --wasm
+
+# Run on web (Chrome) with WASM — release mode
+flutter run -d chrome --wasm --release
 ```
 
 ## Pre-installed Packages
@@ -73,8 +76,8 @@ firebase init hosting
 #   - Configure as single-page app: Yes
 #   - Do NOT overwrite index.html if asked
 
-# Build the Flutter web app
-flutter build web
+# Build the Flutter web app with WASM
+flutter build web --wasm
 
 # Deploy to Firebase Hosting
 firebase deploy --only hosting
@@ -108,6 +111,14 @@ final user = auth.currentUser;
 3. **Don't over-engineer** - Working code beats perfect code
 4. **Use AI** - Let Cursor help you build features quickly
 
-## VS Code Launch
+## VS Code / Cursor Launch
 
-Use the "Flutter Web" launch configuration (F5) to run in Chrome.
+Two launch configurations are provided in `.vscode/launch.json`:
+
+- **Flutter Web (Debug)** — Chrome + WASM, debug mode (hot reload, DevTools)
+- **Flutter Web (Release)** — Chrome + WASM, release mode (production-like performance)
+
+Press F5 and select the configuration you need.
+
+> **Note:** All packages in this project must be WASM-compatible. Avoid packages
+> that depend on `dart:html`, `dart:js`, or `dart:js_util`.

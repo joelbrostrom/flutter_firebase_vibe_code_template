@@ -143,10 +143,46 @@ Future<void> saveUserState(String userId, Map<String, dynamic> state) async {
 }
 ```
 
+## Running the app
+
+The project targets **Flutter Web with WASM** (`--wasm` flag). Two VS Code launch
+configurations are provided in `.vscode/launch.json`:
+
+* **Flutter Web (Debug)** — runs on Chrome with `--wasm` in debug mode (hot
+  reload, DevTools, assertions enabled).
+* **Flutter Web (Release)** — runs on Chrome with `--wasm --release` for
+  production-like performance testing.
+
+Use F5 in VS Code / Cursor and pick the configuration you need.
+
+Equivalent CLI commands:
+
+```bash
+# Debug
+flutter run -d chrome --wasm
+
+# Release
+flutter run -d chrome --wasm --release
+
+# Build for deployment
+flutter build web --wasm
+```
+
+### WASM compatibility
+
+**All packages used in this project must be WASM-compatible.** Before adding a
+new dependency, verify it supports WASM compilation. Packages that rely on
+`dart:html`, `dart:js`, or `dart:js_util` directly will **not** compile with
+`--wasm`. Prefer packages that use `dart:js_interop` and `package:web` instead.
+
+If unsure whether a package is WASM-compatible, check its pub.dev page or use
+the Context7 MCP to look up its documentation.
+
 ## Dependencies
 
 * Add packages freely with `flutter pub add <package>`.
 * Use `any` version constraints for speed (avoid version hunting).
+* **Only use WASM-compatible packages** (see above).
 * Common useful packages: `http`, `provider`, `google_fonts`, `url_launcher`,
   `flutter_animate`, `shimmer`.
 
